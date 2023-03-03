@@ -31,6 +31,8 @@ export default Gameboard = ({ route }) => {
     const [scores, setScores] = useState([])
     const [totalPoints, setTotalPoints] = useState(0);
     const [buttonText, setButtonText] = useState('Throw dices');
+    const [bonusPoints, setBonusPoints] = useState(63);
+    // const [bonusStatus, setBonusStatus] = useState('');
 
     const row = [];
     for (let i = 0; i < NBR_OF_DICES; i++) {
@@ -92,9 +94,20 @@ export default Gameboard = ({ route }) => {
             setNbrOfThrowsLeft(NBR_OF_THROWS - 1);
         // Points will be saved when all points from bottom row have been selected
         } else if (selectedDicePoints.every(x => x)) {
-            savePlayerPoints();
             setStatus('Game over. All points selected');
             setButtonText('New game');
+            let sum = 0;
+            for (let num of dicePointsTotal) {
+                 sum = sum + num;
+            }
+
+            if (sum >= 63) {
+                setTotalPoints(sum + 50);
+            } else {
+                setTotalPoints(sum);
+            }
+            
+            savePlayerPoints();
         } else {
             let sum = 0;
             for (let num of dicePointsTotal) {
@@ -103,6 +116,10 @@ export default Gameboard = ({ route }) => {
             setTotalPoints(sum);
         }
     }, [nbrOfThrowsLeft]);
+
+    useEffect(() => {
+        checkBonusPoints();
+    },[totalPoints])
 
     function getDiceColor(i) {
         return selectedDices[i] ? "black" : "#ab8ee1";
@@ -176,6 +193,10 @@ export default Gameboard = ({ route }) => {
         }
     }
 
+    function checkBonusPoints() {
+        setBonusPoints(63 - totalPoints)
+    }
+
     const getScoreboeardData = async () => {
         try {
             const jsonValue = await AsyncStorage.getItem(SCOREBOARD_KEY);
@@ -236,6 +257,10 @@ export default Gameboard = ({ route }) => {
                 </Text>
             </Pressable>
             <Text style={styles.gameinfo}>Total: {totalPoints}</Text>
+            { totalPoints < 63 
+                ?   <Text style={styles.bonus}>You are {bonusPoints} points away from bonus</Text>
+                :   <Text style={styles.bonus}>Congrats! 50 bonus points will be added</Text>
+            }
             <View style={styles.dicepoints}><Grid>{pointsRow}</Grid></View>
             <View style={styles.dicepoints}><Grid>{buttonsRow}</Grid></View>
             <Text style={styles.player}>Player: {playerName}</Text>

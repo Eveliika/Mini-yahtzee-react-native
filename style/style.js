@@ -66,6 +66,9 @@ export default StyleSheet.create({
     color:"#2B2B52",
     fontSize: 20
   },
+  bonus: {
+    paddingTop: 10
+  },
   points: {
     justifyContent: 'center',
     alignItems: 'center',
